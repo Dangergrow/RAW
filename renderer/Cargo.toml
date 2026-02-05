@@ -1,0 +1,9 @@
+[package]
+name = "plus-renderer"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+image.workspace = true
+plus-engine = { path = "../engine" }

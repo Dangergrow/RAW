@@ -1,0 +1,10 @@
+[package]
+name = "plus-adblock"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+regex.workspace = true
+serde.workspace = true
+url.workspace = true

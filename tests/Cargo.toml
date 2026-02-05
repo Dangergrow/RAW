@@ -1,0 +1,11 @@
+[package]
+name = "plus-tests"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+plus-engine = { path = "../engine" }
+plus-adblock = { path = "../adblock" }
+plus-vpn = { path = "../vpn" }
+plus-net = { path = "../net" }
+tokio.workspace = true
