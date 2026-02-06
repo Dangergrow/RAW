@@ -1,7 +1,7 @@
 use anyhow::Result;
 use plus_adblock::AdblockEngine;
 use plus_engine::EngineController;
-use plus_yandex::{diagnostics_html, new_tab_html, omnibox_to_url};
+use plus_yandex::{app_shell_html, diagnostics_html, new_tab_html, omnibox_to_url, settings_html};
 use serde::Serialize;
 use std::sync::{Arc, Mutex};
 use wry::application::{
@@ -89,6 +89,18 @@ pub fn run_desktop_browser(
                     .header("Content-Type", "text/html")
                     .body(diagnostics_html().into_bytes())
                     .unwrap_or_else(|_| Response::new(Vec::new()))
+            } else if path == "/newtab" {
+                Response::builder()
+                    .status(StatusCode::OK)
+                    .header("Content-Type", "text/html")
+                    .body(new_tab_html().into_bytes())
+                    .unwrap_or_else(|_| Response::new(Vec::new()))
+            } else if path == "/settings" {
+                Response::builder()
+                    .status(StatusCode::OK)
+                    .header("Content-Type", "text/html")
+                    .body(settings_html().into_bytes())
+                    .unwrap_or_else(|_| Response::new(Vec::new()))
             } else {
                 Response::builder()
                     .status(StatusCode::NOT_FOUND)
@@ -96,7 +108,7 @@ pub fn run_desktop_browser(
                     .unwrap_or_else(|_| Response::new(Vec::new()))
             }
         })
-        .with_html(new_tab_html())?
+        .with_html(app_shell_html())?
         .build()?;
 
     event_loop.run(move |event, _, control_flow| {

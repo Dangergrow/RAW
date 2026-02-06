@@ -22,7 +22,6 @@ Plus использует системные web engines через Wry:
 `renderer/` поднимает браузерное окно и webview runtime.
 
 ## Network pipeline
-- `net/` — HTTP client для системных функций (downloads/ip checks/api).
-- Webview engine — фактический рендер/загрузка страниц.
-- VPN core (`vpn/`) поднимает локальный socks5 endpoint для маршрутизации.
-- Adblock (`adblock/`) использует ABP-совместимый движок.
+- `net/` — локальный HTTP proxy, применяющий ABP‑правила.
+- WebView → local proxy → sing-box SOCKS5 (VPN) → сеть.
+- `vpn/` управляет sing-box и локальным SOCKS5.
