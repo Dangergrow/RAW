@@ -16,6 +16,5 @@
 ## Оффлайн‑режим
 1. `tools/vendorize.sh`
 2. `cargo test --workspace --offline`
-
 ## Важно
 - Adblock обновлён до 0.12.1 для совместимости со сборкой на Windows.
