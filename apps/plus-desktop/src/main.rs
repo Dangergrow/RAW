@@ -4,6 +4,7 @@ use plus_engine::{BrowserPolicy, EngineController};
 use plus_privacy::{ensure_profile_dir, PrivacyStore};
 use plus_renderer::run_desktop_browser;
 use plus_vpn::{VpnManager, VpnMode};
+use std::sync::{Arc, Mutex};
 
 fn bootstrap() -> Result<()> {
     let profile = ensure_profile_dir("default")?;
@@ -15,6 +16,7 @@ fn bootstrap() -> Result<()> {
         std::env::var("PLUS_SINGBOX_BIN").unwrap_or_else(|_| "sing-box".into()),
         profile.join("vpn"),
     );
+    let mut proxy = None;
     if let Ok(url) = std::env::var("PLUS_VPN_IMPORT") {
         let _ = vpn.import(&url, VpnMode::Global, true)?;
         let _ = vpn.store_secure(
@@ -23,14 +25,16 @@ fn bootstrap() -> Result<()> {
             profile.join("vpn.sec"),
             "plus-local-passphrase",
         );
+        proxy = vpn.browser_proxy();
     }
 
     let mut adblock =
         AdblockEngine::from_filter_list("||doubleclick.net^\n||googlesyndication.com^")?;
     adblock.set_enabled(true);
+    let adblock = Arc::new(Mutex::new(adblock));
 
     let engine = EngineController::new(BrowserPolicy::default());
-    run_desktop_browser(engine, "Plus")?;
+    run_desktop_browser(engine, "Plus", proxy, adblock)?;
     Ok(())
 }
 

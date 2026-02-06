@@ -15,7 +15,7 @@
 - `adblock/` переведён на библиотеку `adblock` (Brave, ABP-совместимый движок).  
 - `vpn/` запускает **sing-box subprocess** с генерируемым runtime config и локальным SOCKS5 inbound.  
 - `net/` поддерживает egress IP checks и прокси-маршрутизацию для валидации VPN режима.  
-- Добавлен `.cargo/config.toml` с обязательным vendor source для оффлайн сборки.
+- Добавлен отдельный offline-конфиг `.cargo/config.offline.toml` и скрипты, которые включают его только после подготовки `vendor/`.
 
 ## Структура
 - `apps/plus-desktop` — запуск приложения и склейка модулей.
@@ -46,6 +46,17 @@ cargo test --workspace
 Интеграционный VPN-тест автоматически `skip`, если нет `PLUS_TEST_VPN_URL` и `PLUS_SINGBOX_BIN`.
 
 ## Offline vendor
-1. На машине с интернетом: `cargo vendor > /tmp/vendor-config.toml` и скопировать содержимое в `vendor/`.
-2. В репозитории уже включён `.cargo/config.toml`, который принудительно берёт зависимости только из `vendor/`.
+### Включить offline режим
+```bash
+tools/vendorize.sh
+```
+После этого появится `.cargo/config.toml`, и оффлайн сборка будет работать:
+```bash
+cargo build --offline
+```
 
+### Скачать vendor из CI артефакта (если есть)
+```bash
+export PLUS_VENDOR_URL=https://example.com/vendor.tar.zst
+bash installer/fetch_vendor.sh
+```

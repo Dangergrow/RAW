@@ -8,3 +8,4 @@ anyhow.workspace = true
 wry.workspace = true
 plus-engine = { path = "../engine" }
 plus-yandex = { path = "../yandex" }
+plus-adblock = { path = "../adblock" }
