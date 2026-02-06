@@ -41,6 +41,7 @@ struct PlusApp {
     download_url: String,
     show_settings: bool,
     show_diagnostics: bool,
+    dark_mode: bool,
     adblock: Arc<Mutex<AdblockEngine>>,
     engine: EngineController,
     runtime: Runtime,
@@ -75,6 +76,7 @@ impl PlusApp {
             download_url: String::new(),
             show_settings: false,
             show_diagnostics: false,
+            dark_mode: true,
             adblock: Arc::new(Mutex::new(adblock)),
             engine: EngineController::new(BrowserPolicy::default()),
             runtime,
@@ -290,6 +292,11 @@ impl PlusApp {
 
 impl eframe::App for PlusApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        if self.dark_mode {
+            ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            ctx.set_visuals(egui::Visuals::light());
+        }
         self.ensure_webview(frame);
         self.handle_hotkeys(ctx);
 
@@ -349,10 +356,14 @@ impl eframe::App for PlusApp {
                         self.new_tab();
                     }
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.button("⚙").clicked() {
+                        let settings_btn = ui.button("⚙");
+                        settings_btn.on_hover_text("Настройки");
+                        if settings_btn.clicked() {
                             self.show_settings = !self.show_settings;
                         }
-                        if ui.button("🛡").clicked() {
+                        let diag_btn = ui.button("🛡");
+                        diag_btn.on_hover_text("Диагностика");
+                        if diag_btn.clicked() {
                             self.show_diagnostics = !self.show_diagnostics;
                         }
                     });
@@ -363,31 +374,41 @@ impl eframe::App for PlusApp {
             .exact_height(48.0)
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    if ui.button("←").clicked() {
+                    let back = ui.button("←");
+                    back.on_hover_text("Назад");
+                    if back.clicked() {
                         self.progress = 0.2;
                         if let Some(host) = &self.webview {
                             let _ = host.go_back();
                         }
                     }
-                    if ui.button("→").clicked() {
+                    let forward = ui.button("→");
+                    forward.on_hover_text("Вперёд");
+                    if forward.clicked() {
                         self.progress = 0.2;
                         if let Some(host) = &self.webview {
                             let _ = host.go_forward();
                         }
                     }
-                    if ui.button("⟳").clicked() {
+                    let reload = ui.button("⟳");
+                    reload.on_hover_text("Обновить");
+                    if reload.clicked() {
                         self.progress = 0.2;
                         if let Some(host) = &self.webview {
                             let _ = host.reload();
                         }
                     }
-                    if ui.button("⏹").clicked() {
+                    let stop = ui.button("⏹");
+                    stop.on_hover_text("Стоп");
+                    if stop.clicked() {
                         self.progress = 0.2;
                         if let Some(host) = &self.webview {
                             let _ = host.stop();
                         }
                     }
-                    if ui.button("⌂").clicked() {
+                    let home = ui.button("⌂");
+                    home.on_hover_text("Домой");
+                    if home.clicked() {
                         self.open_url("https://yandex.ru");
                     }
                     let response = ui.add_sized(
@@ -416,7 +437,9 @@ impl eframe::App for PlusApp {
                         let input = self.omnibox.clone();
                         self.open_url(&input);
                     }
-                    if ui.button("☆").clicked() {
+                    let star = ui.button("☆");
+                    star.on_hover_text("Добавить в закладки");
+                    if star.clicked() {
                         self.bookmarks.push(self.tabs[self.active].url.clone());
                     }
                 });
@@ -475,17 +498,35 @@ impl eframe::App for PlusApp {
         }
 
         if self.show_settings {
-            egui::Window::new("Settings").show(ctx, |ui| {
-                ui.heading("Downloads");
+            egui::Window::new("Настройки").show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    ui.text_edit_singleline(&mut self.download_url);
-                    if ui.button("Download").clicked() {
-                        self.start_download();
-                    }
+                    ui.vertical(|ui| {
+                        ui.selectable_label(true, "Общие");
+                        ui.selectable_label(false, "Внешний вид");
+                        ui.selectable_label(false, "Поиск");
+                        ui.selectable_label(false, "Конфиденциальность");
+                        ui.selectable_label(false, "VPN");
+                        ui.selectable_label(false, "AdBlock");
+                        ui.selectable_label(false, "Загрузки");
+                        ui.selectable_label(false, "О программе");
+                    });
+                    ui.separator();
+                    ui.vertical(|ui| {
+                        ui.heading("Внешний вид");
+                        ui.checkbox(&mut self.dark_mode, "Тёмная тема");
+                        ui.add_space(8.0);
+                        ui.heading("Загрузки");
+                        ui.horizontal(|ui| {
+                            ui.text_edit_singleline(&mut self.download_url);
+                            if ui.button("Скачать").clicked() {
+                                self.start_download();
+                            }
+                        });
+                        for item in &self.downloads {
+                            ui.label(format!("{} -> {} ({})", item.url, item.path, item.status));
+                        }
+                    });
                 });
-                for item in &self.downloads {
-                    ui.label(format!("{} -> {} ({})", item.url, item.path, item.status));
-                }
             });
         }
     }

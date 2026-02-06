@@ -1,9 +1,19 @@
-# Architecture
+# Архитектура
 
-## Windows-first
-- UI: egui + wgpu (native)
-- Content: WebView2 child HWND
-- Network: local HTTP proxy → adblock → optional sing-box SOCKS5
+## Модули
+- `apps/plus-desktop` — нативный UI (egui)
+- `renderer` — WebView2 host (Windows)
+- `net` — локальный HTTP‑proxy + цепочка в SOCKS5
+- `adblock` — ABP‑движок
+- `vpn` — sing-box менеджер
+- `privacy` — профиль и хранилище
+- `tests` — smoke/e2e
 
-## Data flow
-WebView2 → local proxy → adblock → VPN SOCKS5 (optional) → сеть
+## Потоки данных
+WebView2 → local proxy → adblock → (VPN SOCKS5) → Интернет
+
+## Профиль и безопасность
+Профиль хранится локально, чувствительные данные шифруются и/или идут через keychain.
+
+## AdBlock + WebResourceRequested
+На Windows используется WebView2 WebResourceRequested, чтобы перехватывать сабресурсы.

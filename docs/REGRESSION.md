@@ -1,14 +1,18 @@
-# Regression Checklist (Windows)
+# Регрессионные проверки (Windows)
 
-Run before every PR:
+## Обязательные проверки перед PR
 ```powershell
 ./tools/check_windows.ps1
 ```
 
-Manual smoke:
+## Ручной чек‑лист UI
 1. `cargo run -p plus-desktop`
-2. Open two tabs, navigate to yandex.ru
-3. Open Diagnostics (🛡) and verify:
-   - Proxy status is ON
-   - Adblock stats increase on blocked URL
-4. If VPN env vars configured, run Check IP and confirm IP changes.
+2. Открыть 2 вкладки, перейти на yandex.ru
+3. Открыть «Диагностика» и проверить:
+   - Proxy активен
+   - AdBlock hits увеличивается
+4. Если VPN настроен — нажать Check IP
+
+## Оффлайн‑режим
+1. `tools/vendorize.sh`
+2. `cargo test --workspace --offline`

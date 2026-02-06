@@ -1,16 +1,16 @@
-# Changelog
+# Журнал изменений
 
 ## Unreleased
-- Migrated to native egui UI with WebView2 content area.
-- Added Windows build docs and updated user guide/limitations.
+- Переход на нативный интерфейс egui с контентом WebView2.
+- Документация Windows‑first и инструкции по проверкам.
 
-### How to verify
+### Как проверить
 ```powershell
 cargo fmt --all
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
-Manual smoke:
-- Run `cargo run -p plus-desktop`
-- Open two tabs, navigate to yandex.ru
-- Open Diagnostics, check proxy/adblock hits
+Ручной smoke:
+- Запустить `cargo run -p plus-desktop`
+- Открыть две вкладки, перейти на yandex.ru
+- Открыть «Диагностика» и проверить AdBlock/Proxy

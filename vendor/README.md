@@ -1,1 +1,1 @@
-Vendored crates are expected here. Run: cargo vendor vendor/
+Здесь будут размещены vendored зависимости (`cargo vendor`).

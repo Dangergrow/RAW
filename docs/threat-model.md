@@ -1,12 +1,11 @@
-# Threat Model
-## Threats
-1. Local credential theft.
-2. Untrusted page scripts and tracking.
-3. VPN config leakage.
-4. Supply chain dependency tampering.
+# Модель угроз
 
-## Mitigations
-- Keyring-backed secret storage + encrypted fallback.
-- Adblock network filtering + browser policy constraints.
-- Isolated profile directory with strict permissions.
-- Cargo vendor source pinning for reproducible/offline builds.
+## Угрозы
+1. Кража локальных данных.
+2. Подмена сетевого трафика.
+3. Утечка VPN‑конфигов.
+
+## Митигации
+- Шифрование и keychain.
+- Прокси‑цепочка и блокировка `file://`.
+- Минимизация логов.
