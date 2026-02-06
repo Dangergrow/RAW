@@ -1,0 +1,42 @@
+[workspace]
+members = [
+  "apps/plus-desktop",
+  "engine",
+  "renderer",
+  "net",
+  "privacy",
+  "vpn",
+  "adblock",
+  "yandex",
+  "tests"
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+authors = ["Plus Team"]
+
+[workspace.dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+url = "2"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "fs", "time"] }
+rusqlite = { version = "0.33", features = ["bundled"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.9"
+aes-gcm-siv = "0.11"
+regex = "1"
+keyring = { version = "3", features = ["apple-native", "windows-native", "linux-native"] }
+http = "1"
+urlencoding = "2"
+dirs = "6"
+wry = "0.46"
+adblock = "0.12.1"
+tempfile = "3"

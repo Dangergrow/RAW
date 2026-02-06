@@ -1,0 +1,12 @@
+[package]
+name = "plus-renderer"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+plus-adblock = { path = "../adblock" }
+
+[target.'cfg(windows)'.dependencies]
+webview2 = "0.1"
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
