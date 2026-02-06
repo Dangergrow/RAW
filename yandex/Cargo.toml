@@ -1,0 +1,9 @@
+[package]
+name = "plus-yandex"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+url.workspace = true
+urlencoding.workspace = true

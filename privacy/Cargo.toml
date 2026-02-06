@@ -1,0 +1,10 @@
+[package]
+name = "plus-privacy"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+rusqlite.workspace = true
+chrono.workspace = true
+dirs.workspace = true
