@@ -6,4 +6,4 @@ edition.workspace = true
 [dependencies]
 serde.workspace = true
 url.workspace = true
-urlencoding = "2"
+urlencoding.workspace = true

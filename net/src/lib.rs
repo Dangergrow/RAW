@@ -21,7 +21,7 @@ pub struct NetClient {
 impl NetClient {
     pub fn new(proxy: Option<String>) -> Result<Self> {
         let mut headers = HeaderMap::new();
-        headers.insert(USER_AGENT, HeaderValue::from_static("PlusBrowser/0.1"));
+        headers.insert(USER_AGENT, HeaderValue::from_static("PlusBrowser/0.2"));
         let mut builder = reqwest::Client::builder().default_headers(headers);
         if let Some(proxy_url) = proxy {
             builder = builder.proxy(reqwest::Proxy::all(proxy_url)?);
@@ -52,6 +52,16 @@ impl NetClient {
             content_type,
         })
     }
+
+    pub async fn get_egress_ip(&self) -> Result<String> {
+        Ok(self
+            .client
+            .get("https://api.ipify.org")
+            .send()
+            .await?
+            .text()
+            .await?)
+    }
 }
 
 pub struct HistoryStore {
@@ -78,13 +88,5 @@ impl HistoryStore {
             params![url, title, Utc::now().to_rfc3339()],
         )?;
         Ok(())
-    }
-
-    pub fn list_recent(&self, limit: usize) -> Result<Vec<(String, String)>> {
-        let mut stmt = self
-            .conn
-            .prepare("SELECT url, title FROM history ORDER BY id DESC LIMIT ?1")?;
-        let rows = stmt.query_map(params![limit as i64], |r| Ok((r.get(0)?, r.get(1)?)))?;
-        Ok(rows.filter_map(|r| r.ok()).collect())
     }
 }

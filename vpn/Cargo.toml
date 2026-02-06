@@ -13,3 +13,5 @@ aes-gcm-siv.workspace = true
 sha2.workspace = true
 rand.workspace = true
 keyring.workspace = true
+tokio.workspace = true
+tempfile.workspace = true

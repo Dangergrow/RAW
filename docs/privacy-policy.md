@@ -1,5 +1,5 @@
 # Privacy Policy (Draft)
-- Telemetry disabled by default.
-- User browsing data remains local unless explicit network request is performed by user.
-- Passwords/VPN keys are stored via OS keychain when available; encrypted local fallback otherwise.
-- Incognito mode avoids persistent history writes.
+- By default Plus stores minimal local profile data only.
+- Telemetry is OFF by default and requires explicit opt-in.
+- Incognito mode should use separate transient profile/session data.
+- User is responsible for legal VPN usage in their jurisdiction.

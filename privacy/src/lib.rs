@@ -1,7 +1,8 @@
 use chrono::Utc;
+use dirs::home_dir;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::{fs, path::PathBuf};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrivacySettings {
@@ -20,12 +21,24 @@ impl Default for PrivacySettings {
     }
 }
 
+pub fn ensure_profile_dir(profile: &str) -> std::io::Result<PathBuf> {
+    let base = home_dir().unwrap_or_else(|| PathBuf::from("."));
+    let dir = base.join(".plus").join(profile);
+    fs::create_dir_all(&dir)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&dir, fs::Permissions::from_mode(0o700))?;
+    }
+    Ok(dir)
+}
+
 pub struct PrivacyStore {
     conn: Connection,
 }
 
 impl PrivacyStore {
-    pub fn open(path: impl AsRef<Path>) -> rusqlite::Result<Self> {
+    pub fn open(path: PathBuf) -> rusqlite::Result<Self> {
         let conn = Connection::open(path)?;
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);

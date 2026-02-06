@@ -1,12 +1,12 @@
 # Threat Model
 ## Threats
-1. Credential theft from local storage.
-2. Malicious script/network response injection.
-3. Proxy/VPN config exfiltration.
-4. Supply-chain dependency compromise.
+1. Local credential theft.
+2. Untrusted page scripts and tracking.
+3. VPN config leakage.
+4. Supply chain dependency tampering.
 
 ## Mitigations
-- Encrypted secret persistence and keychain usage.
-- Block `file://` and enforce URL parsing/SOP baseline in network module.
-- Scoped profile storage and SQLite-backed local data controls.
-- Pinned lockfile and CI checks.
+- Keyring-backed secret storage + encrypted fallback.
+- Adblock network filtering + browser policy constraints.
+- Isolated profile directory with strict permissions.
+- Cargo vendor source pinning for reproducible/offline builds.

@@ -5,8 +5,6 @@ edition.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-eframe.workspace = true
-egui.workspace = true
 tokio.workspace = true
 plus-engine = { path = "../../engine" }
 plus-renderer = { path = "../../renderer" }
@@ -15,6 +13,4 @@ plus-privacy = { path = "../../privacy" }
 plus-vpn = { path = "../../vpn" }
 plus-adblock = { path = "../../adblock" }
 plus-yandex = { path = "../../yandex" }
-image.workspace = true
 serde.workspace = true
-serde_json.workspace = true

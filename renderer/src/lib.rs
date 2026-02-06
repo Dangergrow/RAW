@@ -1,46 +1,42 @@
-use image::{Rgba, RgbaImage};
-use plus_engine::Document;
+use anyhow::Result;
+use plus_engine::EngineController;
+use plus_yandex::{new_tab_html, omnibox_to_url};
+use wry::application::{
+    event::{Event, StartCause, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
+use wry::webview::WebViewBuilder;
 
-pub struct Renderer {
-    pub width: u32,
-    pub height: u32,
-}
+pub fn run_desktop_browser(mut engine: EngineController, title: &str) -> Result<()> {
+    let event_loop = EventLoop::new();
+    let window = WindowBuilder::new().with_title(title).build(&event_loop)?;
 
-impl Renderer {
-    pub fn new(width: u32, height: u32) -> Self {
-        Self { width, height }
-    }
+    let _webview = WebViewBuilder::new(window)?
+        .with_initialization_script(
+            r#"
+            window.plusNavigate = function(value){
+                if(value.includes('://') || value.includes('.')) return value;
+                return 'https://yandex.ru/search/?text=' + encodeURIComponent(value);
+            };
+        "#,
+        )
+        .with_html(new_tab_html())?
+        .build()?;
 
-    pub fn render_document(&self, doc: &Document) -> RgbaImage {
-        let mut img = RgbaImage::from_pixel(self.width, self.height, Rgba([250, 250, 250, 255]));
-        for b in &doc.boxes {
-            let y = b.y.max(0.0) as u32;
-            if y >= self.height {
-                continue;
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+
+        match event {
+            Event::NewEvents(StartCause::Init) => {}
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => *control_flow = ControlFlow::Exit,
+            Event::UserEvent(()) => {
+                let _ = engine.validate_navigation(&omnibox_to_url("yandex"));
             }
-            let h = b.height as u32;
-            for yy in y..(y + h).min(self.height) {
-                for xx in 10..(self.width - 10) {
-                    if yy == y || yy == (y + h - 1).min(self.height - 1) {
-                        img.put_pixel(xx, yy, Rgba([225, 225, 225, 255]));
-                    }
-                }
-            }
+            _ => {}
         }
-        img
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use plus_engine::Engine;
-
-    #[test]
-    fn renders_non_empty_image() {
-        let doc = Engine::new(800.0, 600.0).parse_and_layout("<body>Hello renderer</body>");
-        let img = Renderer::new(400, 300).render_document(&doc);
-        assert_eq!(img.width(), 400);
-        assert_eq!(img.height(), 300);
-    }
+    });
 }

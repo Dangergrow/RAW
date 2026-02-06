@@ -7,3 +7,4 @@ edition.workspace = true
 serde.workspace = true
 rusqlite.workspace = true
 chrono.workspace = true
+dirs.workspace = true

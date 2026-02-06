@@ -1,4 +1,5 @@
 # Security Notes
-- Same-origin baseline enforced by URL loader policy for local file isolation.
-- Cookies and settings are manageable and clearable from privacy module.
-- External APIs for translation can be enabled only with explicit API key env vars.
+- Telemetry disabled by default.
+- `file://` blocked by policy unless explicitly allowed.
+- VPN secrets stored in OS keyring, encrypted fallback is AES-GCM-SIV.
+- Profile directory permissions restricted (0700 on Unix).

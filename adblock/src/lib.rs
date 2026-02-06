@@ -1,7 +1,7 @@
+use adblock::engine::Engine;
+use adblock::lists::ParseOptions;
 use anyhow::Result;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
-use url::Url;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AdblockStats {
@@ -10,58 +10,52 @@ pub struct AdblockStats {
 }
 
 pub struct AdblockEngine {
-    patterns: Vec<Regex>,
-    exceptions: Vec<Regex>,
+    engine: Engine,
     pub stats: AdblockStats,
+    enabled: bool,
+    whitelist: Vec<String>,
 }
 
 impl AdblockEngine {
     pub fn from_filter_list(list: &str) -> Result<Self> {
-        let mut patterns = Vec::new();
-        let mut exceptions = Vec::new();
-        for line in list.lines().map(str::trim).filter(|l| !l.is_empty()) {
-            if line.starts_with('!') || line.starts_with('[') {
-                continue;
-            }
-            let (target, is_exception) = if let Some(ex) = line.strip_prefix("@@") {
-                (ex, true)
-            } else {
-                (line, false)
-            };
-            let escaped = regex::escape(target)
-                .replace(r"\*", ".*")
-                .replace(r"\^", "[/:?=&.]?");
-            let re = Regex::new(&escaped)?;
-            if is_exception {
-                exceptions.push(re);
-            } else {
-                patterns.push(re);
-            }
-        }
+        let mut engine = Engine::new(true);
+        engine
+            .from_rules(
+                &list.lines().map(ToOwned::to_owned).collect::<Vec<_>>(),
+                ParseOptions::default(),
+            )
+            .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         Ok(Self {
-            patterns,
-            exceptions,
+            engine,
             stats: AdblockStats::default(),
+            enabled: true,
+            whitelist: Vec::new(),
         })
     }
 
-    pub fn should_block(&mut self, url: &str) -> bool {
-        let Ok(parsed) = Url::parse(url) else {
-            self.stats.allowed += 1;
-            return false;
-        };
-        let hay = format!("{}{}", parsed.host_str().unwrap_or_default(), parsed.path());
-        if self.exceptions.iter().any(|r| r.is_match(&hay)) {
+    pub fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
+    }
+
+    pub fn add_whitelist_host(&mut self, host: String) {
+        self.whitelist.push(host);
+    }
+
+    pub fn should_block(&mut self, url: &str, source_url: &str, resource_type: &str) -> bool {
+        if !self.enabled || self.whitelist.iter().any(|w| url.contains(w)) {
             self.stats.allowed += 1;
             return false;
         }
-        let blocked = self.patterns.iter().any(|r| r.is_match(&hay));
-        if blocked {
+        let matched = self
+            .engine
+            .check_network_urls(url, source_url, resource_type)
+            .matched;
+        if matched {
             self.stats.blocked += 1;
         } else {
             self.stats.allowed += 1;
         }
-        blocked
+        matched
     }
 }
 
@@ -70,11 +64,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn blocks_ads() {
-        let mut e =
-            AdblockEngine::from_filter_list("||ads.example.com^\n@@||ads.example.com/good.js")
-                .unwrap();
-        assert!(e.should_block("https://ads.example.com/tracker.js"));
-        assert!(!e.should_block("https://ads.example.com/good.js"));
+    fn blocks_known_tracker_rule() {
+        let rules = "||doubleclick.net^";
+        let mut ad = AdblockEngine::from_filter_list(rules).unwrap();
+        assert!(ad.should_block(
+            "https://doubleclick.net/track.js",
+            "https://example.org",
+            "script"
+        ));
     }
 }

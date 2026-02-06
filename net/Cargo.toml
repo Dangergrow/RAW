@@ -13,4 +13,3 @@ reqwest.workspace = true
 tokio.workspace = true
 rusqlite.workspace = true
 chrono.workspace = true
-http.workspace = true
