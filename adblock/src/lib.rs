@@ -1,5 +1,6 @@
 use adblock::engine::Engine;
 use adblock::lists::ParseOptions;
+use adblock::request::Request;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -20,13 +21,18 @@ pub struct AdblockEngine {
 
 impl AdblockEngine {
     pub fn from_filter_list(list: &str) -> Result<Self> {
-        let mut engine = Engine::new(true);
-        engine
-            .from_rules(
-                &list.lines().map(ToOwned::to_owned).collect::<Vec<_>>(),
-                ParseOptions::default(),
-            )
-            .map_err(|e| anyhow::anyhow!(e.to_string()))?;
+        // Engine::from_rules в adblock 0.12.x возвращает Engine напрямую (без Result).
+        // Поэтому ошибки тут могут быть только логические/пустой список — но не через Result API.
+        let rules: Vec<String> = list
+            .lines()
+            .map(str::trim)
+            .filter(|l| !l.is_empty() && !l.starts_with('!'))
+            .map(ToOwned::to_owned)
+            .collect();
+
+        let opts = ParseOptions::default();
+        let engine = Engine::from_rules(rules.iter().map(|s| s.as_str()), opts);
+
         Ok(Self {
             engine,
             stats: AdblockStats::default(),
@@ -49,10 +55,11 @@ impl AdblockEngine {
             self.stats.allowed += 1;
             return false;
         }
-        let matched = self
-            .engine
-            .check_network_urls(url, source_url, resource_type)
-            .matched;
+
+        // В adblock 0.12.x используется check_network_request(&Request)
+        let req = Request::new(url, source_url, resource_type);
+        let matched = self.engine.check_network_request(&req).matched;
+
         if matched {
             self.stats.blocked += 1;
             self.track_block(url);
