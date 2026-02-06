@@ -5,9 +5,8 @@ edition.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-wry.workspace = true
-plus-engine = { path = "../engine" }
-plus-yandex = { path = "../yandex" }
 plus-adblock = { path = "../adblock" }
-serde = { workspace = true }
-serde_json = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+webview2 = "0.1"
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }

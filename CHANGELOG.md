@@ -1,17 +1,16 @@
 # Changelog
 
 ## Unreleased
-- Added app shell UI with tabs/navigation, settings shell, and new-tab enhancements.
-- Added local adblock proxy routing all WebView traffic with optional VPN SOCKS5 chaining.
-- Added diagnostics page, regression checklist, and user guide docs.
+- Migrated to native egui UI with WebView2 content area.
+- Added Windows build docs and updated user guide/limitations.
 
 ### How to verify
-```bash
+```powershell
 cargo fmt --all
+cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
-Offline:
-```bash
-tools/vendorize.sh
-cargo test --workspace --offline
-```
+Manual smoke:
+- Run `cargo run -p plus-desktop`
+- Open two tabs, navigate to yandex.ru
+- Open Diagnostics, check proxy/adblock hits

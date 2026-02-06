@@ -268,3 +268,7 @@ pub fn app_shell_html() -> String {
     </body></html>"#
         .to_string()
 }
+
+pub fn new_tab_data_url() -> String {
+    format!("data:text/html,{}", urlencoding::encode(&new_tab_html()))
+}

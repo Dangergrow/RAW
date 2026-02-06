@@ -1,13 +1,14 @@
-# Regression Checklist
+# Regression Checklist (Windows)
 
 Run before every PR:
-```bash
-tools/check.sh
+```powershell
+./tools/check_windows.ps1
 ```
 
 Manual smoke:
 1. `cargo run -p plus-desktop`
-2. Open `plus://diagnostics-ui` and verify:
+2. Open two tabs, navigate to yandex.ru
+3. Open Diagnostics (🛡) and verify:
    - Proxy status is ON
    - Adblock stats increase on blocked URL
-3. If VPN env vars configured, run Check IP and confirm IP changes.
+4. If VPN env vars configured, run Check IP and confirm IP changes.
