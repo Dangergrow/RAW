@@ -81,3 +81,42 @@ pub fn new_tab_html() -> String {
         tiles
     )
 }
+
+pub fn diagnostics_html() -> String {
+    r#"<!doctype html><html><head><meta charset='utf-8'><style>
+    body{font-family:Inter,Arial;background:#0f172a;color:#e2e8f0;margin:0;padding:24px}
+    h1{margin:0 0 16px 0}
+    .card{background:#111827;border-radius:12px;padding:16px;margin-bottom:12px}
+    button{padding:10px 14px;border:none;border-radius:10px;background:#38bdf8;color:#0f172a;font-weight:600}
+    pre{white-space:pre-wrap}
+    </style></head><body>
+    <h1>Plus Diagnostics</h1>
+    <div class='card'>
+      <strong>Runtime</strong>
+      <pre id='runtime'>Loading...</pre>
+    </div>
+    <div class='card'>
+      <strong>Adblock</strong>
+      <pre id='adblock'>Loading...</pre>
+    </div>
+    <div class='card'>
+      <strong>Check IP</strong><br><br>
+      <button onclick='checkIp()'>Check IP</button>
+      <pre id='ip'></pre>
+    </div>
+    <script>
+      async function refresh(){
+        const runtime = await fetch('plus://diagnostics').then(r=>r.json());
+        document.getElementById('runtime').textContent = JSON.stringify(runtime, null, 2);
+        const adblock = await fetch('plus://adblock').then(r=>r.json());
+        document.getElementById('adblock').textContent = JSON.stringify(adblock, null, 2);
+      }
+      async function checkIp(){
+        const res = await fetch('https://api.ipify.org?format=json').then(r=>r.json());
+        document.getElementById('ip').textContent = JSON.stringify(res, null, 2);
+      }
+      refresh();
+    </script>
+    </body></html>"#
+        .to_string()
+}

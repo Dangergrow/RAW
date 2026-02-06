@@ -13,3 +13,4 @@ reqwest.workspace = true
 tokio.workspace = true
 rusqlite.workspace = true
 chrono.workspace = true
+plus-adblock = { path = "../adblock" }

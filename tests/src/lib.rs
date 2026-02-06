@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod smoke {
     use plus_adblock::AdblockEngine;
-    use plus_net::NetClient;
+    use plus_net::{start_proxy, NetClient};
     use plus_vpn::{VpnManager, VpnMode};
+    use std::sync::{Arc, Mutex};
 
     #[test]
     fn adblock_blocks_tracker() {
@@ -12,6 +13,20 @@ mod smoke {
             "https://example.org",
             "script"
         ));
+    }
+
+    #[tokio::test]
+    async fn proxy_blocks_blocked_domain() {
+        let mut ad = AdblockEngine::from_filter_list("||blocked.example^").unwrap();
+        ad.set_enabled(true);
+        let ad = Arc::new(Mutex::new(ad));
+        let proxy = start_proxy("127.0.0.1:0", ad, None).await.unwrap();
+        let client = reqwest::Client::builder()
+            .proxy(reqwest::Proxy::http(format!("http://{}", proxy.listen_addr)).unwrap())
+            .build()
+            .unwrap();
+        let resp = client.get("http://blocked.example/").send().await.unwrap();
+        assert_eq!(resp.status().as_u16(), 403);
     }
 
     #[tokio::test]

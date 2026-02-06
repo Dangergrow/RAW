@@ -8,4 +8,5 @@ plus-adblock = { path = "../adblock" }
 plus-vpn = { path = "../vpn" }
 plus-net = { path = "../net" }
 tokio.workspace = true
+reqwest.workspace = true
 tempfile.workspace = true

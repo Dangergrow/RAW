@@ -31,6 +31,11 @@
 ```bash
 cargo run -p plus-desktop
 ```
+Diagnostics UI: `plus://diagnostics-ui`
+
+## Как применяется Adblock/VPN к WebView
+- WebView использует локальный HTTP proxy (adblock proxy), который перехватывает **все** запросы и блокирует домены по ABP‑правилам.
+- При активном VPN adblock‑proxy устанавливает соединения через локальный SOCKS5 sing-box.
 
 ## VPN запуск
 ```bash

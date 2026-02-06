@@ -2,6 +2,7 @@ use adblock::engine::Engine;
 use adblock::lists::ParseOptions;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AdblockStats {
@@ -14,6 +15,7 @@ pub struct AdblockEngine {
     pub stats: AdblockStats,
     enabled: bool,
     whitelist: Vec<String>,
+    last_blocked: VecDeque<String>,
 }
 
 impl AdblockEngine {
@@ -30,6 +32,7 @@ impl AdblockEngine {
             stats: AdblockStats::default(),
             enabled: true,
             whitelist: Vec::new(),
+            last_blocked: VecDeque::with_capacity(32),
         })
     }
 
@@ -52,10 +55,22 @@ impl AdblockEngine {
             .matched;
         if matched {
             self.stats.blocked += 1;
+            self.track_block(url);
         } else {
             self.stats.allowed += 1;
         }
         matched
+    }
+
+    pub fn last_blocked(&self) -> Vec<String> {
+        self.last_blocked.iter().cloned().collect()
+    }
+
+    fn track_block(&mut self, url: &str) {
+        if self.last_blocked.len() == 32 {
+            self.last_blocked.pop_front();
+        }
+        self.last_blocked.push_back(url.to_string());
     }
 }
 
